@@ -1,14 +1,18 @@
 # Run python3 main.py in terminal
 import os
 import cv2
+import time
 import numpy as np
 import get_hsv as hsv
+
+score = 0
+last_goal_time = 0
 
 # Get Absolute Directory Path of Project
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Find PNG File
-img_path = os.path.join(current_dir, "assets", "soccer_goal.png")
+img_path = os.path.join(current_dir, "assets", "soccer_net.png")
 
 # Soccer Net Image
 img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
@@ -21,7 +25,7 @@ else:
     height, width = img.shape[:2]
 
     # Calculate Specific Aspect Ratio
-    desired_width = 1000
+    desired_width = 1000  # When resizing the image also keep in mind roi = frame[40:1040, 460:1460] needs to change respectively
     aspect_ratio = desired_width / float(width)
     desired_height = int(height * aspect_ratio)
 
@@ -39,6 +43,12 @@ pink_up = np.array([200, 185, 255])
 lime_low = np.array([30, 90, 100])
 lime_up = np.array([95, 240, 250])
 
+
+# Coordinates for Soccer Goal Boundaries
+top_left = np.array([504, 357])
+top_right = np.array([1413, 357])
+bottom_left = np.array([504, 780])
+bottom_right = np.array([1413, 780])
 
 # Open a connection to the webcam (0 is default, change index for different cameras)
 cap = cv2.VideoCapture(0)
@@ -105,6 +115,21 @@ while True:
         
         # Draw Exact Center Point on Ball in Live Frame
         cv2.circle(frame, center, 2, (0,0,255), -1)
+
+        # Set Bounds
+        left_bound = 504
+        right_bound = 1413
+        top_bound = 357
+        bottom_bound = 780
+
+        current_time = time.time()
+
+        # Check if Ball Detection/ Collision Occurs Within Net Bounds
+        if left_bound <= center[0] <= right_bound and top_bound <= center[1] <= bottom_bound and current_time - last_goal_time >= 5:
+            print("GOAALLLLLLL!!!!!!")
+            score += 1
+            print(f"Number of Goals: {score}")
+            last_goal_time = current_time
 
     
     # ---- Window Display ----
