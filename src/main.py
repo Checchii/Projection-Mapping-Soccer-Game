@@ -45,10 +45,19 @@ lime_up = np.array([95, 240, 250])
 
 
 # Coordinates for Soccer Goal Boundaries
-top_left = np.array([504, 357])
-top_right = np.array([1413, 357])
-bottom_left = np.array([504, 780])
-bottom_right = np.array([1413, 780])
+left_bound = 504
+right_bound = 1413
+top_bound = 357
+bottom_bound = 780
+
+# Goal Text Display
+txt_coords = (500, 500)
+txt = "GOAALLLLLLL!!!!!!"
+font = cv2.FONT_HERSHEY_SIMPLEX
+font_scale = 4
+color = (0, 255, 0)
+thickness = 8
+display_duration = 3
 
 # Open a connection to the webcam (0 is default, change index for different cameras)
 cap = cv2.VideoCapture(0)
@@ -98,6 +107,8 @@ while True:
 
     # Find Ball Contour
     contours, _ = cv2.findContours(ball, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    current_time = time.time()
     
     # Calculate Largest Contour
     if contours:
@@ -116,26 +127,20 @@ while True:
         # Draw Exact Center Point on Ball in Live Frame
         cv2.circle(frame, center, 2, (0,0,255), -1)
 
-        # Set Bounds
-        left_bound = 504
-        right_bound = 1413
-        top_bound = 357
-        bottom_bound = 780
-
-        current_time = time.time()
-
         # Check if Ball Detection/ Collision Occurs Within Net Bounds
         if left_bound <= center[0] <= right_bound and top_bound <= center[1] <= bottom_bound and current_time - last_goal_time >= 5:
-            print("GOAALLLLLLL!!!!!!")
             score += 1
             print(f"Number of Goals: {score}")
             last_goal_time = current_time
 
-    
+    # Display Goal Text on Screen
+    if current_time - last_goal_time <= display_duration:
+        cv2.putText(frame, txt, txt_coords, font, font_scale, color, thickness)
+
     # ---- Window Display ----
     # Display the Frames
     cv2.imshow("frame", frame)
-    cv2.imshow("Results", result)
+    # cv2.imshow("Results", result) # Mask Frame Window For Debugging
 
     # Left Click To Get Pixel HSV values
     cv2.setMouseCallback('frame', hsv.on_mouse, frame)
