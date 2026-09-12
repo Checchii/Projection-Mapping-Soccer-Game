@@ -8,8 +8,9 @@ vals = []
 def on_mouse(event, x, y, flags, param):
     # Check if the event was the left mouse button being clicked
     if event == cv2.EVENT_LBUTTONDOWN:
-        # Get the BGR pixel value at the clicked location of the frame we pass
+        # Get the BGR pixel value at the clicked location of the frame we pass or pixel for net boundaries
         pixel = param[y, x]
+        print(f"Clicked Coordinates: X: {x} Y: {y}")
 
         # Convert BGR to HSV and print the pixel values
         hsv_pixel = cv2.cvtColor(np.uint8([[pixel]]), cv2.COLOR_BGR2HSV)
